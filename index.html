@@ -1,0 +1,77 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa escoamento EDF7_ROD80_CAP20_NEAREST_POINT</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    html, body { height: 100%; margin: 0; font-family: Arial, sans-serif; }
+    #map { width: 100vw; height: 100vh; }
+    .panel { position:absolute; z-index:1000; top:12px; left:12px; width:390px; background:rgba(255,255,255,.95); border:1px solid #d0d7de; border-radius:6px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,.14); font-size:13px; line-height:1.35; }
+    .panel h1 { margin:0 0 8px; font-size:16px; }
+    .legend { display:grid; gap:5px; margin-top:8px; }
+    .legend span { display:flex; gap:7px; align-items:center; }
+    .dot { width:11px; height:11px; border-radius:50%; display:inline-block; border:1px solid #24292f; }
+    .line-label { background:rgba(255,255,255,.9); border:1px solid #d0d7de; border-radius:4px; padding:2px 4px; font-size:11px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <section class="panel">
+    <h1>Escoamento EDF7 - CAP20</h1>
+    <div>Regra: ROD80 ate ponto ja atendido + max. 20% por destino.</div>
+    <div>Volume sugerido: <strong>269,7/dia</strong>.</div>
+    <div>Alivio EDF7: <strong>3,37 carros/dia</strong>.</div>
+    <div style="margin-top:8px"><strong>Capacidade adicional nos destinos</strong></div>
+      <div>EDF10: +81,6/dia = +2 carros op.</div>
+      <div>EGO6: +56,8/dia = +1 carros op.</div>
+      <div>EGO8: +131,3/dia = +2 carros op.</div>
+    <div class="legend">
+      <span><i class="dot" style="background:#d73a49"></i> Origem EDF7</span>
+      <span><i class="dot" style="background:#0969da"></i> Cidades para EGO8</span>
+      <span><i class="dot" style="background:#8250df"></i> Cidades para EGO6</span>
+      <span><i class="dot" style="background:#bf6a02"></i> Cidades para EDF10</span>
+      <span><i class="dot" style="background:#8c959f"></i> Nao sugeridas</span>
+    </div>
+  </section>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const facilities = [{"xpt": "EDF10", "cidade_base_xpt": "Minaçu", "lat_xpt": -13.5420058, "lon_xpt": -48.2232928, "tipo_xpt": "XPT", "cep_xpt": "76450000"}, {"xpt": "EDF7", "cidade_base_xpt": "Uruaçu", "lat_xpt": -14.5343068, "lon_xpt": -49.1433693, "tipo_xpt": "XPT", "cep_xpt": "76400000"}, {"xpt": "EGO6", "cidade_base_xpt": "Goianésia", "lat_xpt": -15.346561, "lon_xpt": -49.1326493, "tipo_xpt": "XPT", "cep_xpt": "76382331"}, {"xpt": "EGO8", "cidade_base_xpt": "Crixás", "lat_xpt": -14.5483489, "lon_xpt": -49.9733611, "tipo_xpt": "XPT", "cep_xpt": "76510000"}];
+    const cities = [{"cidade_norm": "COLINACU", "cidade": "Colinaçu", "volume_dia": 3.1, "lat_cidade": -14.049640603238096, "lon_cidade": -48.934983877190476}, {"cidade_norm": "GUARINOS", "cidade": "Guarinos", "volume_dia": 15.2, "lat_cidade": -14.731924923459626, "lon_cidade": -49.704016732304346}, {"cidade_norm": "NOVA IGUACU DE GOIAS", "cidade": "Nova Iguaçu De Goiás", "volume_dia": 33.8, "lat_cidade": -14.286894177, "lon_cidade": -49.390488515}, {"cidade_norm": "SANTA TEREZA DE GOIAS", "cidade": "Santa Tereza De Goiás", "volume_dia": 35.5, "lat_cidade": -13.714227289, "lon_cidade": -49.015630436}, {"cidade_norm": "SAO LUIZ DO NORTE", "cidade": "São Luíz Do Norte", "volume_dia": 41.6, "lat_cidade": -14.861169484, "lon_cidade": -49.33387831}, {"cidade_norm": "FORMOSO", "cidade": "Formoso", "volume_dia": 43.0, "lat_cidade": -13.654360382, "lon_cidade": -48.877319457}, {"cidade_norm": "ALTO HORIZONTE", "cidade": "Alto Horizonte", "volume_dia": 97.5, "lat_cidade": -14.19478053514811, "lon_cidade": -49.33995141671297}, {"cidade_norm": "CAMPINORTE", "cidade": "Campinorte", "volume_dia": 141.9, "lat_cidade": -14.310628980757684, "lon_cidade": -49.15257046265216}, {"cidade_norm": "MARA ROSA", "cidade": "Mara Rosa", "volume_dia": 161.5, "lat_cidade": -14.018090639295538, "lon_cidade": -49.17365800968401}, {"cidade_norm": "NIQUELANDIA", "cidade": "Niquelândia", "volume_dia": 290.6, "lat_cidade": -14.474529202, "lon_cidade": -48.458167999}, {"cidade_norm": "PORANGATU", "cidade": "Porangatu", "volume_dia": 393.5, "lat_cidade": -13.442214941440314, "lon_cidade": -49.146205231909065}];
+    const selected = [{"origem": "EDF7", "cidade": "Formoso", "cidade_norm": "FORMOSO", "volume_dia": 43.0, "cep_count": 1, "lat_cidade": -13.654360382, "lon_cidade": -48.877319457, "destino_candidato": "EDF10", "volume_atual_destino_dia": 694.8, "limite_incremento_20pct_dia": 138.96, "incremento_pct_individual": 0.06188831318364998, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Campinaçu", "cep_ponto_proximo_destino": "76440000", "cep5_ponto_proximo_destino": "76440", "lat_ponto_proximo": -13.789982345, "lon_ponto_proximo": -48.567642828, "distancia_linha_reta_km": 36.69379487672721, "distancia_rodoviaria_est_km": 45.86724359590902, "distancia_operacional_rodoviaria_est_km": 45.86724359590902, "veiculos_incrementais_exatos": 0.5375, "veiculos_incrementais_arredondados": 1, "sugerido": true, "entrada_acumulada_destino_dia": 43.0, "aumento_acumulado_pct_destino": 0.06188831318364998}, {"origem": "EDF7", "cidade": "Santa Tereza De Goiás", "cidade_norm": "SANTA TEREZA DE GOIAS", "volume_dia": 35.5, "cep_count": 1, "lat_cidade": -13.714227289, "lon_cidade": -49.015630436, "destino_candidato": "EDF10", "volume_atual_destino_dia": 694.8, "limite_incremento_20pct_dia": 138.96, "incremento_pct_individual": 0.051093839953943586, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Campinaçu", "cep_ponto_proximo_destino": "76440000", "cep5_ponto_proximo_destino": "76440", "lat_ponto_proximo": -13.789982345, "lon_ponto_proximo": -48.567642828, "distancia_linha_reta_km": 49.11376960467838, "distancia_rodoviaria_est_km": 61.39221200584798, "distancia_operacional_rodoviaria_est_km": 61.39221200584798, "veiculos_incrementais_exatos": 0.44375, "veiculos_incrementais_arredondados": 1, "sugerido": true, "entrada_acumulada_destino_dia": 78.5, "aumento_acumulado_pct_destino": 0.11298215313759356}, {"origem": "EDF7", "cidade": "Colinaçu", "cidade_norm": "COLINACU", "volume_dia": 3.1, "cep_count": 2, "lat_cidade": -14.049640603238096, "lon_cidade": -48.934983877190476, "destino_candidato": "EDF10", "volume_atual_destino_dia": 694.8, "limite_incremento_20pct_dia": 138.96, "incremento_pct_individual": 0.004461715601611975, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Campinaçu", "cep_ponto_proximo_destino": "76440000", "cep5_ponto_proximo_destino": "76440", "lat_ponto_proximo": -13.789982345, "lon_ponto_proximo": -48.567642828, "distancia_linha_reta_km": 49.046044886954746, "distancia_rodoviaria_est_km": 61.30755610869343, "distancia_operacional_rodoviaria_est_km": 61.30755610869343, "veiculos_incrementais_exatos": 0.03875, "veiculos_incrementais_arredondados": 1, "sugerido": true, "entrada_acumulada_destino_dia": 81.6, "aumento_acumulado_pct_destino": 0.11744386873920552}, {"origem": "EDF7", "cidade": "São Luíz Do Norte", "cidade_norm": "SAO LUIZ DO NORTE", "volume_dia": 41.6, "cep_count": 1, "lat_cidade": -14.861169484, "lon_cidade": -49.33387831, "destino_candidato": "EGO6", "volume_atual_destino_dia": 2291.4, "limite_incremento_20pct_dia": 458.28000000000003, "incremento_pct_individual": 0.01815483983590818, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Itapaci", "cep_ponto_proximo_destino": "76364959", "cep5_ponto_proximo_destino": "76364", "lat_ponto_proximo": -14.955658896, "lon_ponto_proximo": -49.547299369, "distancia_linha_reta_km": 25.224846338938793, "distancia_rodoviaria_est_km": 31.53105792367349, "distancia_operacional_rodoviaria_est_km": 31.53105792367349, "veiculos_incrementais_exatos": 0.52, "veiculos_incrementais_arredondados": 1, "sugerido": true, "entrada_acumulada_destino_dia": 41.6, "aumento_acumulado_pct_destino": 0.01815483983590818}, {"origem": "EDF7", "cidade": "Guarinos", "cidade_norm": "GUARINOS", "volume_dia": 15.2, "cep_count": 1, "lat_cidade": -14.731924923459626, "lon_cidade": -49.704016732304346, "destino_candidato": "EGO6", "volume_atual_destino_dia": 2291.4, "limite_incremento_20pct_dia": 458.28000000000003, "incremento_pct_individual": 0.006633499170812603, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Itapaci", "cep_ponto_proximo_destino": "76360000", "cep5_ponto_proximo_destino": "76360", "lat_ponto_proximo": -14.958691746, "lon_ponto_proximo": -49.552371997, "distancia_linha_reta_km": 30.024675680506675, "distancia_rodoviaria_est_km": 37.530844600633344, "distancia_operacional_rodoviaria_est_km": 37.530844600633344, "veiculos_incrementais_exatos": 0.19, "veiculos_incrementais_arredondados": 1, "sugerido": true, "entrada_acumulada_destino_dia": 56.8, "aumento_acumulado_pct_destino": 0.02478833900672078}, {"origem": "EDF7", "cidade": "Alto Horizonte", "cidade_norm": "ALTO HORIZONTE", "volume_dia": 97.5, "cep_count": 2, "lat_cidade": -14.19478053514811, "lon_cidade": -49.33995141671297, "destino_candidato": "EGO8", "volume_atual_destino_dia": 661.8, "limite_incremento_20pct_dia": 132.35999999999999, "incremento_pct_individual": 0.1473254759746147, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Campos Verdes", "cep_ponto_proximo_destino": "76515000", "cep5_ponto_proximo_destino": "76515", "lat_ponto_proximo": -14.269698477, "lon_ponto_proximo": -49.656500384, "distancia_linha_reta_km": 35.120622268987425, "distancia_rodoviaria_est_km": 43.90077783623428, "distancia_operacional_rodoviaria_est_km": 43.90077783623428, "veiculos_incrementais_exatos": 1.21875, "veiculos_incrementais_arredondados": 2, "sugerido": true, "entrada_acumulada_destino_dia": 97.5, "aumento_acumulado_pct_destino": 0.1473254759746147}, {"origem": "EDF7", "cidade": "Nova Iguaçu De Goiás", "cidade_norm": "NOVA IGUACU DE GOIAS", "volume_dia": 33.8, "cep_count": 1, "lat_cidade": -14.286894177, "lon_cidade": -49.390488515, "destino_candidato": "EGO8", "volume_atual_destino_dia": 661.8, "limite_incremento_20pct_dia": 132.35999999999999, "incremento_pct_individual": 0.051072831671199755, "cabe_individualmente_20pct": true, "cidade_ponto_proximo_destino": "Campos Verdes", "cep_ponto_proximo_destino": "76515000", "cep5_ponto_proximo_destino": "76515", "lat_ponto_proximo": -14.269698477, "lon_ponto_proximo": -49.656500384, "distancia_linha_reta_km": 28.7291846555068, "distancia_rodoviaria_est_km": 35.9114808193835, "distancia_operacional_rodoviaria_est_km": 35.9114808193835, "veiculos_incrementais_exatos": 0.4225, "veiculos_incrementais_arredondados": 1, "sugerido": true, "entrada_acumulada_destino_dia": 131.3, "aumento_acumulado_pct_destino": 0.19839830764581448}];
+    const colors = {"EGO8": "#0969da", "EGO6": "#8250df", "EDF10": "#bf6a02", "EDF9": "#cf222e", "EGO12": "#1f883d"};
+    const selectedByCity = Object.fromEntries(selected.map(s => [s.cidade_norm, s]));
+    const map = L.map('map', { preferCanvas: true });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap' }).addTo(map);
+    const bounds = [];
+
+    facilities.forEach(f => {
+      bounds.push([f.lat_xpt, f.lon_xpt]);
+      const color = f.xpt === 'EDF7' ? '#d73a49' : (colors[f.xpt] || '#0969da');
+      L.circleMarker([f.lat_xpt, f.lon_xpt], { radius: f.xpt === 'EDF7' ? 10 : 9, color, fillColor: color, fillOpacity: .95, weight: 2 })
+        .addTo(map).bindPopup(`<strong>${f.xpt}</strong><br>${f.cidade_base_xpt}<br>${f.tipo_xpt}`);
+      L.marker([f.lat_xpt, f.lon_xpt], { opacity:0, interactive:false }).addTo(map).bindTooltip(f.xpt, { permanent:true, direction:'top', offset:[0,-8] });
+    });
+
+    cities.forEach(c => {
+      bounds.push([c.lat_cidade, c.lon_cidade]);
+      const s = selectedByCity[c.cidade_norm];
+      const color = s ? (colors[s.destino_candidato] || '#1a7f37') : '#8c959f';
+      const radius = Math.max(5, Math.min(17, 4 + Math.sqrt(c.volume_dia) / 2));
+      L.circleMarker([c.lat_cidade, c.lon_cidade], { radius, color, fillColor: color, fillOpacity: s ? .82 : .38, weight: s ? 2 : 1 })
+        .addTo(map).bindPopup(`<strong>${c.cidade}</strong><br>Volume: ${c.volume_dia.toLocaleString('pt-BR')}/dia<br>${s ? 'Destino: ' + s.destino_candidato : 'Nao sugerida'}`);
+    });
+
+    selected.forEach(s => {
+      const color = colors[s.destino_candidato] || '#1a7f37';
+      bounds.push([s.lat_ponto_proximo, s.lon_ponto_proximo]);
+      L.circleMarker([s.lat_ponto_proximo, s.lon_ponto_proximo], { radius:5, color, fillColor:'#fff', fillOpacity:1, weight:3 })
+        .addTo(map).bindPopup(`<strong>Ponto atendido por ${s.destino_candidato}</strong><br>${s.cidade_ponto_proximo_destino}<br>CEP5: ${s.cep5_ponto_proximo_destino}`);
+      L.polyline([[s.lat_cidade, s.lon_cidade], [s.lat_ponto_proximo, s.lon_ponto_proximo]], { color, weight:3, opacity:.78, dashArray:'6 6' })
+        .addTo(map).bindTooltip(`${s.cidade} -> ${s.destino_candidato}: ${Number(s.distancia_rodoviaria_est_km).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} km`, { sticky:true, className:'line-label' });
+    });
+    map.fitBounds(bounds, { padding:[48,48] });
+  </script>
+</body>
+</html>
